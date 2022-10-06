@@ -98,7 +98,7 @@ beta
 reg0var
 ```
 
-### **2 with $E(\epsilon)\neq 0$**
+### **2 $E(\epsilon)\neq 0$**
 
 * $Y_i = \beta_{0}+\beta_{1}X_i+\epsilon_i$
 
@@ -108,13 +108,13 @@ reg0var
 
 * $\epsilon_i\sim\mathbb{N}(2, \sigma^2)$
 
-#### **1.1 estimation for $\;\beta$**
+#### **2.1 estimation for $\;\beta$**
 
 ```{r echo=FALSE}
 beta1
 ```
 
-#### **1.2 Plot**
+#### **2.2 Plot**
 
 ```{r echo=FALSE}
 reg2var
