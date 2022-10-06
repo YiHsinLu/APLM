@@ -1,0 +1,121 @@
+---
+title: "**【APLM: homework0929】**"
+output: 
+  html_document:
+    df_print: paged
+---
+
+**$\mathcal{YiHsin}\;\mathcal{Lu}$**
+
+****
+
+  
+```{r include=FALSE}
+library(plotly)
+library(lattice)
+library(matlib)
+load("D:/1006.RData")
+```
+
+
+## **【EX1】**
+We would like to realize which factors are related to the likelihood that a hospital patients acquires an infection while hospitalized. The variables here are y= infection risk, x1= average length of patient stay, x2= average patient age, x3= measure of how many x-rays are given in the hospital (Hospital Infection dataset). 
+
+### **(EX1) Data Set**
+
+```{r echo=FALSE}
+hosData %>% select(4, 2, 3, 6)
+```
+
+****
+
+### **(EX1) Least Square Estimation**
+
+$\hat\beta = (\mathbb{X}'\mathbb{X})^{-1}\mathbb{X}'\mathbb{Y}$
+
+```{r echo=FALSE}
+rownames(lse_hosData$beta_hat) = c('beta0_hat', 'beta1_hat', 'beta2_hat', 'beta3_hat')
+colnames(lse_hosData$beta_hat) = 'estimator'
+lse_hosData$beta_hat
+```
+
+****
+
+## **【EX2】**
+There are 214 females in statistics classes at the University of California at Davis (Stat Females dataset). The variables are y= student’s self-reported height, x1= student’s guess at her mother’s height, and x2= student’s guess at her father’s height. All heights are in inches.
+
+### **(EX2) Data Set**
+
+```{r echo=FALSE}
+heiData
+```
+
+****
+
+### **(EX2) Least Square Estimation**
+
+* $\hat\beta = (\mathbb{X}'\mathbb{X})^{-1}\mathbb{X}'\mathbb{Y}$
+
+```{r echo=FALSE}
+rownames(lse_heiData$beta_hat) = c('beta0_hat', 'beta1_hat', 'beta2_hat')
+colnames(lse_heiData$beta_hat) = 'estimator'
+lse_heiData$beta_hat
+```
+
+****
+
+### **(EX2) Plot**
+
+* Surface: $\hat{y} = \hat\beta_{0}+\hat\beta_{1}x_1+\hat\beta_{2}x_2$
+
+* Red points: $(x_1,x_2,y)$
+
+```{r echo=FALSE}
+fig
+```
+
+## **【assigment0930(d.)】**
+
+### **1 $E(\epsilon)=0$**
+
+* $Y_i = \beta_{0}+\beta_{1}X_i+\epsilon_i$
+
+* $\beta_{0} = 0.3$
+
+* $\beta_{1} = 2$
+
+* $\epsilon_i\sim\mathbb{N}(0, \sigma^2)$
+
+#### **1.1 estimation for $\;\beta$**
+
+```{r echo=FALSE}
+beta
+```
+
+#### **1.2 Plot**
+
+```{r echo=FALSE}
+reg0var
+```
+
+### **2 with $E(\epsilon)\neq 0$**
+
+* $Y_i = \beta_{0}+\beta_{1}X_i+\epsilon_i$
+
+* $\beta_{0} = 0.3$
+
+* $\beta_{1} = 2$
+
+* $\epsilon_i\sim\mathbb{N}(2, \sigma^2)$
+
+#### **1.1 estimation for $\;\beta$**
+
+```{r echo=FALSE}
+beta1
+```
+
+#### **1.2 Plot**
+
+```{r echo=FALSE}
+reg2var
+```

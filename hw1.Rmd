@@ -1,0 +1,73 @@
+```{r}
+hosData = read.table('D:/hospital_infct.txt', header = 1)
+heiData = read.table('D:/stat_females.txt', header = 1)
+```
+
+```{r}
+library(matlib)
+
+n = nrow(hosData)
+Y = as.matrix(hosData[,4])
+X = as.matrix(cbind(rep(1,n), hosData[,c(2,3,6)]))
+
+beta_hat = inv(t(X)%*%X)%*%t(X)%*%Y
+```
+
+```{r}
+beta_hat
+```
+
+```{r}
+lse = function(data_matrix, ny = 1, nx = c(2:ncol(data_matrix))){
+  n = nrow(data_matrix)
+  Y = as.matrix(data_matrix[,ny])
+  X = as.matrix(cbind(rep(1,n), data_matrix[,nx]))
+  colnames(X)[1] = '1'
+  beta_hat = inv(t(X)%*%X)%*%t(X)%*%Y
+  beta_hat = as.data.frame(beta_hat)
+  return(list(beta_hat = beta_hat, Y = Y, X = X))
+}
+```
+
+```{r}
+lse_heiData = lse(data_matrix = heiData)
+```
+
+```{r}
+lse_hosData = lse(data_matrix = hosData, ny = 4, nx = c(2, 3, 6))
+```
+
+```{r}
+library(plotly)
+library(lattice) 
+
+# volcano is a numeric matrix that ships with R
+x = heiData$momheight
+y = heiData$dadheight
+lse_heiData = lse(data_matrix = heiData)
+
+f = function(x,y){
+  b0 = lse_heiData$beta_hat[1,]
+  b1 = lse_heiData$beta_hat[2,]
+  b2 = lse_heiData$beta_hat[3,]
+  return(b0+b1*x+b2*y)
+}
+#z = rbind(x, x+y)
+#wireframe(z ~ x + y, xlab="Parameter 1", ylab="Parameter 2", zlab="Fitness Value")
+z <- outer(X = x,Y = y,FUN = f)
+
+fig <- plot_ly(x=x,y=y,z=t(z))
+fig <- fig %>% add_surface()
+
+fig = plot_ly(x=x, y=y, z=t(z), type = "surface") %>% 
+  add_trace(data = heiData, 
+            x = heiData$momheight, 
+            y = heiData$dadheight, 
+            z = heiData$Height, 
+            mode = "markers", 
+            type = "scatter3d", 
+            marker = list(size = 5, color = "red", symbol = 104))
+
+
+
+```
