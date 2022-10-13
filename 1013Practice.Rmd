@@ -1,0 +1,53 @@
+---
+title: '**【APLM: homework0929】**'
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+**$\mathcal{YiHsin}\;\mathcal{Lu}$**
+
+****
+
+```{r include=FALSE}
+library(dplyr)
+library(ggplot2)
+load("D:/NDHU_Master/111-1/APLM/aplm.io/1013.RData")
+```
+
+## **2.3 Exaple: computer repair data**
+
+### **1 The data**
+
+* x: the length of service calls in minutes
+* y: the number of component repaired
+
+```{r echo=FALSE}
+data1
+```
+
+****
+
+### **2 Plot**
+
+```{r echo=FALSE}
+plot1
+```
+
+****
+
+### **3 Simple linear model**
+
+```{r echo=FALSE}
+summary(lm1)
+```
+****
+
+### **4 Do t-test**
+
+* $H_0:\;\beta_0=0\;$ vs $\;H_1:\;\beta_0\neq 0$
+* p-value = 0.409
+* if p-value > $\alpha$, then we couldn't reject $H_0$. Hence we don't have enough information to say $\beta_0=0$
+
+* if p-value < $\alpha$, then we reject $H_0$.Hence $\beta_0\neq0$
