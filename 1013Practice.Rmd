@@ -20,8 +20,8 @@ load("D:/NDHU_Master/111-1/APLM/aplm.io/1013.RData")
 
 ### **1 The data**
 
-* x: the length of service calls in minutes
-* y: the number of component repaired
+* y: the length of service calls in minutes
+* x: the number of component repaired
 
 ```{r echo=FALSE}
 data1
@@ -47,7 +47,7 @@ summary(lm1)
 ### **4 Do t-test**
 
 * $H_0:\;\beta_0=0\;$ vs $\;H_1:\;\beta_0\neq 0$
-* p-value = 0.409
+* p-value = 0.239
 * if p-value > $\alpha$, then we couldn't reject $H_0$. Hence we don't have enough information to say $\beta_0=0$
 
 * if p-value < $\alpha$, then we reject $H_0$.Hence $\beta_0\neq0$
