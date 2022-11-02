@@ -1,0 +1,141 @@
+---
+title: "**【APLM:assignment1014】**"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+---
+
+**$\mathcal{YiHsin}\;\mathcal{Lu}$**
+
+****
+
+```{r include=FALSE}
+library(plotly)
+library(lattice) 
+load('test.RData')
+load('ass1014.RData')
+```
+  
+# **1 Testing**
+Please load the attached data by load `test.RData` Analyze the attached data by the linear model on the response variable ($Y$) with two predictor variables ($X1, X2$). Also use the appropriate statistical method to check whether the corresponding coefficient of $X1$ ($\beta_1$) is greater than 2.
+
+****
+## **【solution】**
+* Since the purpose is test whether $\beta_1$ greater than 2 or not. If our testing result reject $H_0$, then we are finished.
+\
+\
+
+* $\Large{H_0:\beta_1\leq2}$
+\
+
+* $\Large{H_1:\beta_1>2}$
+
+****
+
+### **Base on the data**
+
+$y_i = \beta_0+\beta_1x_{i1}+\beta_2x_{i2}\quad\Rightarrow\quad\beta_{i1} = \cfrac{y_i-\hat{\beta_0}-\hat{\beta_2}x_{i2}}{x_{i1}}\quad$,   use $\bar{\beta_1}$ to estimate $\beta_1$, and use t-test to check $H_0$.
+
+```{r}
+beta1 = (Y-beta_h[1]-beta_h[3]*x2)/x1
+t.test(beta1, mu = 2, alternative = 'greater')
+```
+
+```{r}
+qt(p = 0.05, df = 499, lower.tail = F)
+```
+
+
+Since $t_{\beta_1} = 29.263>1.647913=t_{0.05,499}$
+\
+
+Reject $H_0$, accept $H_1$, then the corresponding coefficient of $X1$ ($\beta_1$) is greater than 2
+
+****
+
+
+### **Linear Model t-test**
+
+* $\large{y_i = \beta_0+\beta_1x_{i1}+\beta_2x_{i2}+\epsilon_i\;,\;\forall \;i=1,\cdots,500}$
+
+```{r}
+summary(linear_model)
+```
+
+****
+
+### **3D plot**
+
+
+
+# **2 Summary Report**
+
+****
+
+### **Moment Generating Function**
+
+****
+
+#### **【Definition】**
+\
+
+Let $\mathbb{X} = (X_1,X_2,\cdots,X_n)^T$ be random vector and $\mathbb{t} = (t_1,t_2,\cdots,t_n)^T\in\mathbb{R}^n$, MGF (Moment Generating Function) is defined by:
+$$
+M_\mathbb{X}(t) = E(e^{t^T\mathbb{X}})
+$$
+for all $t$ for which the expectation exists (finite).
+
+****
+
+#### **【Theorem1】**
+\
+
+Let $M_\mathbb{X}(t)=M_\mathbb{Y}(t)\;,\;\;\forall\;t\in(-t_0,t_0)^n$, then:
+$$
+F_\mathbb{X}(z)=F_\mathbb{Y}(z)\;,\;\forall z\in\mathbb{R}^n
+$$
+where $F_\mathbb{X}(z)$ and $F_\mathbb{Y}(z)$: joint cdfs of $\mathbb{X}$ and $\mathbb{Y}$
+
+****
+
+#### **【Theorem2】**
+\
+
+Let $X_1,X_2,\cdots,X_m\in\mathbb{R}^n$ are independent , and $\mathbb{X} = X_1+X_2+\cdots+X_m$. Then:
+$$
+M_\mathbb{X}(t) = \prod_{i=1}^m M_{X_i}(t)
+$$
+
+****
+
+#### **【Theorem3】**
+\
+
+Let 
+* $\mathbb{X}$: random vector in $\mathbb{R}^n$
+* $A$: $m\times n$ real matrix
+* $b\in\mathbb{R}^m$
+* $\mathbb{Y} = A\mathbb{X}+b$
+* $t\in\mathbb{R}^m$.
+Then:
+$$
+M_\mathbb{Y}(t) = e^{\mathbb{t}^Tb}M_\mathbb{X}(A^Tt)
+$$
+
+****
+
+### **Multivariate Normal Distribution**
+
+****
+
+#### **【Theorem4】**
+\
+
+If $\mathbb{X}=(X_1,X_2,\cdots,X_n)^T \sim N(\mu,\Sigma)$, the joint pdf given by:
+$$
+f_\mathbb{X}(x) = \cfrac{1}{\sqrt{(2\pi)^n\;det\;\Sigma}}e^{-\frac{1}{2}(x-\mu)^T\Sigma^{-1}(x-\mu)}\;,\qquad x\in\mathbb{R}^n
+$$
+
+****
