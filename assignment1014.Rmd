@@ -68,6 +68,9 @@ summary(linear_model)
 
 ### **3D plot**
 
+```{r}
+fig
+```
 
 
 # **2 Summary Report**
