@@ -1,0 +1,89 @@
+---
+title: "**【APLM:assignment1031】**"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+---
+
+**$\mathcal{YiHsin}\;\mathcal{Lu}$**
+
+****
+
+```{r include=FALSE}
+library(ggplot2)
+library(GGally)
+load('1110.Rdata')
+```
+
+# **C. **
+
+The attached data `iqsize.txt` including four variables performance IQ scores PIQ, brain size from MRI scans Size (count/10,000), height Height (inches), and weight (pounds) for n=38 college students. Analyze the data and make a summary.In addition, check whether the mentioned physical information affect IQ score performance.
+
+****
+
+## **【Linear Model】**
+
+### $y_i=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+\beta_3x_{i3}+\epsilon_i\;,\;\forall\; i=1,\cdots,38$
+
+* $\large{y_i}$: PIQ
+* $\large{x_{i1}}$: Brain
+* $\large{x_{i2}}$: Height
+* $\large{x_{i3}}$: Weight
+
+
+```{r echo=FALSE}
+iq
+```
+
+```{r}
+summary(lm_iq)
+```
+
+****
+
+## **【Pairs Plot】**
+
+```{r echo=FALSE}
+ggpairs(iq)
+```
+
+## **【T-test】**
+
+### **1. $\beta_1 = \cfrac{Y-\hat{\beta_0}-\hat{\beta_2}X_2-\hat{\beta_3}X_3}{X_1}$**
+
+* $\Large{H_0:\bar{\beta_1}=0}$
+
+
+* $\Large{H_1:\bar{\beta_1}\neq0}$
+
+```{r echo=FALSE}
+t.test(beta1/x1, mu=0)
+```
+
+****
+
+### **2. $\beta_2 = \cfrac{Y-\hat{\beta_0}-\hat{\beta_1}X_1-\hat{\beta_3}X_3}{X_2}$**
+
+* $\Large{H_0:\bar{\beta_2}=0}$
+
+
+* $\Large{H_1:\bar{\beta_2}\neq0}$
+
+```{r echo=FALSE}
+t.test(beta2/x2, mu=0)
+```
+
+****
+
+### **3. $\beta_3 = \cfrac{Y-\hat{\beta_0}-\hat{\beta_1}X_1-\hat{\beta_2}X_2}{X_3}$**
+
+* $\Large{H_0:\bar{\beta_3}=0}$
+
+
+* $\Large{H_1:\bar{\beta_3}\neq0}$
+
+```{r echo=FALSE}
+t.test(beta3/x3, mu=0)
+```
