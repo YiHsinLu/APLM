@@ -1,0 +1,66 @@
+---
+title: "**【1204】**"
+output: 
+  html_document:
+    df_print: paged
+---
+
+**$\mathcal{YiHsin}\;\mathcal{Lu}$**
+
+****
+
+# **1**
+
+## **The attached data `iqsize.txt` including four variables performance IQ scores PIQ, brain size from MRI scans Size (count/10,000), height Height (inches), and weight weight (pounds) for n=38 college students.**
+
+```{r echo=FALSE}
+load('1204.Rdata')
+```
+
+****
+
+## (a) Please separately calculate the 95 % confidence region of new respondent’s IQ score with the given data.
+
+### **The given data:**
+```{r echo=FALSE}
+as.data.frame(x_h[,-1])
+```
+
+### **The ($1-\alpha$)% Confidence Interval:**
+
+$$
+\Large{\left (\;\;\hat{Y}_h\pm t_{(1-\alpha/2, n-p)}\sqrt{\mbox{MSE}(1+\mathbb{X}_h(\mathbb{X}'\mathbb{X})^{-1}\mathbb{X'}_h)}\;\;\right )}
+$$
+
+### **The 95% Confidence Interval:**
+
+$$
+\Large{\left (\;\;\hat{Y}_h\pm t_{(0.975, 34)}\sqrt{\mbox{MSE}(1+\mathbb{X}_h(\mathbb{X}'\mathbb{X})^{-1}\mathbb{X'}_h)}\;\;\right )}
+$$
+
+```{r echo=FALSE}
+as.data.frame(ci1)
+```
+
+****
+
+## (b) Consider simultaneous
+confidence region by Bonferroni’s method.
+
+### **The 95% Confidence Interval:**
+
+$$
+\Large{\left (\;\;\hat{Y}_h\pm t_{(1-\frac{0.05}{2\cdot 7}, 34)}\sqrt{\mbox{MSE}\cdot \mathbb{X}_h(\mathbb{X}'\mathbb{X})^{-1}\mathbb{X'}_h}\;\;\right )}
+$$
+
+```{r echo=FALSE}
+as.data.frame(ci2)
+```
+
+****
+
+## (c) Compare the length of constructed confidence region in (a) and (b)
+
+```{r echo=FALSE}
+lci
+```

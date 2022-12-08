@@ -1,0 +1,65 @@
+```{r}
+iq = read.table('D:/NDHU_Master/111-1/APLM/aplm.io/dataset/iqsize.txt', header = 1)
+
+```
+
+```{r}
+lm_iq = lm(PIQ~., data = iq)
+summary(lm_iq)
+```
+
+```{r}
+x_h = matrix(data = c(100,160,50,
+                      120,174,60,
+                      181,124,80,
+                      162,120,90,
+                      141,124,50,
+                      110,154,53,
+                      100,123,80), nrow = 7, ncol = 3, byrow = T)
+colnames(x_h) = colnames(iq[,-1])
+x_h = cbind("1" = rep(1,7), x_h)
+#switch the height and weight
+x_h = as.data.frame(x_h)
+x_h = x_h[c("1", "Brain", "Weight", "Height")]
+x_h = as.matrix(x_h)
+colnames(x_h) = c("1", "Brain", "Height", "Weight")
+
+X = cbind("1" = rep(1,38), iq[,-1])
+X = as.matrix(X)
+beta_hat = matrix(data = lm_iq$coefficients, ncol = 1, nrow = 4, byrow = T)
+
+```
+
+```{r}
+y_h = x_h%*%beta_hat
+```
+
+```{r}
+mse = mean((iq$PIQ-X%*%beta_hat)^2)
+```
+
+```{r}
+alpha1 = 1- 0.025/2
+alpha2 = 1- 0.025/14
+t_value1 = qt(p=alpha1, df = 34)*sqrt(mse*(1+x_h%*%solve(t(X)%*%X)%*%t(x_h)))
+t_value2 = qt(p=alpha2, df = 34)*sqrt(mse*(1+x_h%*%solve(t(X)%*%X)%*%t(x_h)))
+```
+
+```{r}
+ci1 = c()
+for (i in 1:7){
+  ci1_lvalue = y_h[i,]-t_value1[i,i]
+  ci1_uvalue = y_h[i,]+t_value1[i,i]
+  ci1_i = c(ci1_lvalue, ci1_uvalue)
+  ci1 = rbind(ci1, ci1_i)
+}
+ci2 = c()
+for (i in 1:7){
+  ci2_lvalue = y_h[i,]-t_value2[i,i]
+  ci2_uvalue = y_h[i,]+t_value2[i,i]
+  ci2_i = c(ci2_lvalue, ci2_uvalue)
+  ci2 = rbind(ci2, ci2_i)
+}
+rownames(ci1) = rownames(ci2) = c(1:7)
+colnames(ci1) = colnames(ci2) = c("CI_lower", "CI_upper")
+```
