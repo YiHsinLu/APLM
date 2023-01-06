@@ -1,0 +1,66 @@
+```{r}
+library(HSAUR3)
+data("CHFLS", package = "HSAUR3")
+```
+
+```{r}
+chfls1 = CHFLS[, c(3,4,5,7,9,10)]
+chfls.f = CHFLS
+```
+
+```{r}
+edu = levels(chfls1$R_edu)
+happy = levels(chfls1$R_happy)
+heal = levels(chfls1$R_health)
+reg = levels(chfls.f$R_region)
+```
+
+```{r}
+for(i in 1:length(reg)){
+  chfls.f$R_region = gsub(reg[i], i, as.factor(chfls.f$R_region))
+}
+chfls.f$R_region = gsub('4east', 5, as.factor(chfls.f$R_region))
+
+for(i in 1:length(edu)){
+  chfls.f$R_edu = gsub(edu[i], i, chfls.f$R_edu)
+}
+for(i in 1:length(edu)){
+  chfls.f$A_edu = gsub(edu[i], i, chfls.f$A_edu)
+}
+for(i in 1:length(happy)){
+  chfls.f$R_happy = gsub(happy[i], i, chfls.f$R_happy)
+}
+for(i in 1:length(heal)){
+  chfls.f$R_health = gsub(heal[i], i, chfls.f$R_health)
+}
+
+for(i in 1:length(edu)){
+  chfls.f$R_edu = as.numeric(chfls.f$R_edu)
+}
+for(i in 1:length(edu)){
+  chfls.f$A_edu = as.numeric(chfls.f$A_edu)
+}
+for(i in 1:length(happy)){
+  chfls.f$R_happy = as.numeric(chfls.f$R_happy)
+}
+for(i in 1:length(heal)){
+  chfls.f$R_health = as.numeric(chfls.f$R_health)
+}
+```
+
+
+```{r}
+lm_happy = lm(R_happy~., data = chfls.f)
+summary(lm_happy)
+```
+
+```{r}
+lm_income = lm(R_income~., data = chfls.f)
+summary(lm_happy)
+
+```
+
+```{r}
+lm_aincome = lm(A_income~., data = chfls.f)
+summary(lm_aincome)
+```
