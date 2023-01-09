@@ -1,0 +1,579 @@
+---
+title: "**Final 2023**"
+subtitle: "Applied Statistical Linear Model Final Exam"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
+---
+
+## **(1)** (Leave-one-out cross-validation) For n observed data ($X_{n×p}$, $Y_{n×1}$), assume theta $\hat{Y}_{i(i)}$ is the estimated expected value based on data except i the case. Please show $Y_i-\hat{Y_{i(i)}}=\frac{e_i}{1-h_{ii}}$, where $e_i$: the residual of ith data based on all data information. $h_{ii}$: the i diagonal element in the Hat matrix.
+
+****
+
+### **Sherman–Morrison formula**
+(special version)
+$Let\;A\in\mathbb{R}^{n\times n},\;v'\;is\;column\;vector\;in\;\mathbb{R}^n,\;and\;1-\mathcal{v}A^{-1}\mathcal{v'}\neq0.\;Then$
+
+$$
+\left(A-\mathcal{v'}\mathcal{v}\right)^{-1}=\left(A^{-1}-\cfrac{A^{-1}\mathcal{v'}\mathcal{v}A^{-1}}{1-\mathcal{v}A^{-1}\mathcal{v'}}\right)
+$$
+
+****
+
+### **Least Square Estimation**
+(leave $i_{th}$ out)\
+\
+
+* $\mathbb{Y} = \begin{pmatrix}
+Y_1\\
+\vdots\\
+Y_n
+\end{pmatrix}
+,\;and\;
+\mathbb{X} = \begin{pmatrix}
+X_1\\
+\vdots\\
+X_n
+\end{pmatrix}
+,\;\forall\;X_i'\in\mathbb{R}^p$\
+\
+* $\mathbb{Y_{(i)}}:delete\;i_{th}\;row\;of\;\mathbb{Y}$\
+\
+* $\mathbb{X_{(i)}}:delete\;i_{th}\;row\;of\;\mathbb{X}$\
+\
+* $\mathbb{X_{(i)}'}\mathbb{X_{(i)}}=\mathbb{X'}\mathbb{X}-X_i'X_i\;and\;\mathbb{X_{(i)}'}\mathbb{Y_{(i)}}=\mathbb{X'}\mathbb{Y}-X_i'Y_i$\
+\
+
+#### **Estimation for $\beta_{(i)}$**
+
+$$
+\hat{\beta_{(i)}}=(\mathbb{X'_{(i)}}\mathbb{X_{(i)}})^{-1}\mathbb{X'_{(i)}}\mathbb{Y_{(i)}}=\left(\mathbb{X'}\mathbb{X}-X_i'X_i\right)^{-1}\left(\mathbb{X'}\mathbb{Y}-X_i'Y_i\right)
+$$( By **Sherman–Morrison formula** )
+$$
+=\left((\mathbb{X'}\mathbb{X})^{-1}+\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'X_i(\mathbb{X'}\mathbb{X})^{-1}}{1-X_i(\mathbb{X'}\mathbb{X})^{-1}X_i'}\right)\left(\mathbb{X'}\mathbb{Y}-X_i'Y_i\right)
+$$( $h_{ii}=X_i(\mathbb{X'}\mathbb{X})^{-1}X_i'$ )
+$$
+=\left((\mathbb{X'}\mathbb{X})^{-1}+\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'X_i(\mathbb{X'}\mathbb{X})^{-1}}{1-h_{ii}}\right)\left(\mathbb{X'}\mathbb{Y}-X_i'Y_i\right)
+$$( Expend )
+$$
+=\left[(\mathbb{X'}\mathbb{X})^{-1}\mathbb{X'}\mathbb{Y}\right]
+-\left[(\mathbb{X'}\mathbb{X})^{-1}X_i'Y_i\right]
++\left[\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'X_i(\mathbb{X'}\mathbb{X})^{-1}\mathbb{X'}\mathbb{Y}}{1-h_{ii}}\right]
+-\left[\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'X_i(\mathbb{X'}\mathbb{X})^{-1}X_i'Y_i}{1-h_{ii}}\right]
+$$( $\hat{\beta}=(\mathbb{X'}\mathbb{X})^{-1}\mathbb{X'}\mathbb{Y}$ and $h_{ii}=X_i(\mathbb{X'}\mathbb{X})^{-1}X_i'$ )
+$$
+=
+\left[\hat{\beta}\right]
+-\left[(\mathbb{X'}\mathbb{X})^{-1}X_i'Y_i\right]
++\left[\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'X_i\hat{\beta}}{1-h_{ii}}\right]
+-\left[\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'h_{ii}Y_i}{1-h_{ii}}\right]
+$$( Times $\frac{1-h_{ii}}{1-h_{ii}}$ for $(\mathbb{X'}\mathbb{X})^{-1}X_i'Y_i$ )
+$$
+=
+\left[\hat{\beta}\right]
+-\left[\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'Y_i(1-h_{ii})}{1-h_{ii}}\right]
++\left[\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'X_i\hat{\beta}}{1-h_{ii}}\right]
+-\left[\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'h_{ii}Y_i}{1-h_{ii}}\right]
+$$( Simplified )
+$$
+=
+\hat{\beta}
+-\left(\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'}{1-h_{ii}}\right)
+\left(
++\left[Y_i(1-h_{ii})\right]
+-\left[X_i\hat{\beta}\right]
++\left[h_{ii}Y_i\right]
+\right)
+$$( Simplified )
+$$
+=
+\hat{\beta}
+-\left(\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'}{1-h_{ii}}\right)
+\left(
+Y_i-Y_ih_{ii}
+-X_i\hat{\beta}
++h_{ii}Y_i
+\right)
+$$( Simplified )
+$$
+=
+\hat{\beta}
+-\left(\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'}{1-h_{ii}}\right)
+\left(
+Y_i
+-X_i\hat{\beta}
+\right)
+$$( $e_i=Y_i-X_i\hat{\beta}$ )
+$$
+=
+\hat{\beta}
+-\left(\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'}{1-h_{ii}}\right)e_i
+$$( $h_{ii}=X_i(\mathbb{X'}\mathbb{X})^{-1}X_i'$ )
+
+****
+
+### **Deleted residuals**
+$$
+\large Y_i-\hat{Y}_{i(i)}=Y_i-X_i\hat{\beta_{(i)}}=Y_i-X_i\left[\hat{\beta}-\left(\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'}{1-h_{ii}}\right)e_i\right]
+$$( Expend )
+$$
+\large =Y_i-X_i\hat{\beta}-\cfrac{X_i(\mathbb{X'}\mathbb{X})^{-1}X_i'}{1-h_{ii}}e_i
+$$ ( $\hat{Y_{i}}=X_i\hat{\beta}$ )
+$$
+\large =Y_i-\hat{Y_i}-\left(\cfrac{(\mathbb{X'}\mathbb{X})^{-1}X_i'}{1-h_{ii}}\right)e_i
+$$ ( $e_i=Y_i-\hat{Y_i}$ )
+$$
+\large =e_i-\left(\cfrac{X_i(\mathbb{X'}\mathbb{X})^{-1}X_i'}{1-h_{ii}}\right)e_i
+$$( $h_{ii}=X_i(\mathbb{X'}\mathbb{X})^{-1}X_i'$ )
+$$
+\large =e_i-\left(\cfrac{h_{ii}}{1-h_{ii}}\right)e_i
+$$ ( Simplified )
+$$
+\large =\cfrac{e_i}{1-h_{ii}}
+$$
+
+****
+
+### **Hence**
+
+$$
+\huge Y_i-\hat{Y}_{i(i)}=\cfrac{e_i}{1-h_{ii}}
+$$
+
+****
+
+```{r include=FALSE}
+library(kableExtra)
+library(dplyr)
+```
+
+## **(2)** A manager would like to increase the return on an investment, which depends on 20 financial products. But, some of financial products can not affect the return. In the attached data set including 12000 data, , the first column is the return and the remaining ones are the investment strategies in the financial product.
+
+****
+### **Data set**
+
+```{r echo=FALSE}
+load('final2.RData')
+finProd
+```
+
+****
+### **(a)**Please analyze the data (It is required to provide ANOVA table) ? Your data analysis must include the model development procedure such as the model checking & model selection.\
+
+****
+
+#### **Model: $Y=\beta_0+\beta_1X_1+\cdots+\beta_{20}X_{20}+\epsilon$**
+
+```{r echo=FALSE}
+summary(lm_fin)
+```
+
+****
+
+#### **ANOVA Table**
+```{r echo=FALSE}
+kbl(anova_fin) %>%
+  kable_styling(fixed_thead = T)
+```
+##### Code
+```{r eval=FALSE, include=TRUE}
+anova_info = function(dm,lm1=list(),k=1){
+  n = nrow(dm)
+  p = ncol(dm)
+  colnames(dm)[k] = "Y"
+  if(length(lm1)==0){
+    lm1 = lm(Y~., data = dm)
+  }
+  SSR = sum((fitted(lm1)-mean(dm$Y))^2)
+  SSE = sum((dm$Y-fitted(lm1))^2)
+  df_r = p-1
+  df_e = n-p
+  MSR = SSR/df_r
+  MSE = SSE/df_e
+  F_value = MSR/MSE
+  anova_fin = as.data.frame(matrix(data = c(SSR, df_r, MSR,F_value,
+                                            SSE, df_e, MSE, "",
+                                            SSR+SSE, df_r+df_e, "", ""), ncol = 4, nrow = 3, byrow = T))
+  colnames(anova_fin) = c("Sum of Square", "deree of freedom", "Mean Square",   "F-test")
+  rownames(anova_fin) = c("Regession", "Error", "Total")
+  F_test = qf(0.95, df_r, df_e)
+  return(list(n=n, p=p, SSR=SSR, df_r=df_r, MSR=MSR, SSE=SSE, df_e=df_e, MSE=MSE, F_value=F_value, F_test=F_test, anova_table = anova_fin))
+}
+
+```
+****
+
+#### **Model Checking**
+
+##### Mean of residuals
+```{r echo=FALSE}
+mean(lm_fin$residuals)
+```
+##### Variance of residuals
+```{r echo=FALSE}
+var(lm_fin$residuals)
+```
+****
+```{r echo=FALSE}
+qqnorm(lm_fin$residuals)
+qqline(lm_fin$residuals)
+```
+
+****
+
+#### **Model Selection**
+
+#### **Forward**
+
+##### F-value
+```{r echo=FALSE}
+f_valuef1
+```
+```{r echo=FALSE}
+fin_dmf
+```
+##### Code
+```{r eval=FALSE, include=TRUE}
+fin_dmf = data.frame(Y = finProd$Y)
+n_var = 1:20
+f_valuef1 = 0
+for(i in 1:20){
+  f_com = c()
+  for(j in n_var){
+    fin_dm = as.data.frame(cbind(fin_dmf, finProd[,j+1]))
+    anova_infoi = anova_info(fin_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var[-which.max(f_com)]
+  f_valuef2 = max(f_com)
+  print(c(f_valuef1,f_valuef2))
+  if(f_valuef1<=f_valuef2){
+    fin_dmf = as.data.frame(cbind(fin_dmf, finProd[,which.max(f_com)+1]))
+    colnames(fin_dmf)[length(fin_dmf)] = colnames(finProd)[which.max(f_com)+1]
+    f_valuef1 = f_valuef2
+  }else{
+    break
+    f_value.f = f_valuef1
+  }
+}
+```
+#### **Backward**
+
+##### F-value
+```{r echo=FALSE}
+f_valueb1
+```
+```{r echo=FALSE}
+fin_dmb
+```
+##### Code
+```{r eval=FALSE, include=TRUE}
+#Backward
+fin_dmb = finProd
+n_var = 20
+f_valueb1 = 0
+for(i in 1:20){
+  f_com = c()
+  for(j in 1:n_var){
+    fin_dm = fin_dmb[,-(j+1)]
+    anova_infoi = anova_info(fin_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var-1
+  f_valueb2 = min(f_com)
+  print(c(f_valueb1,f_valueb2))
+  if(f_valueb1<=f_valueb2){
+    fin_dmb = fin_dmb[,-which.min(f_com)]
+    f_valueb1 = f_valueb2
+  }else{
+    break
+    f_value.b = f_valueb1
+  }
+}
+```
+
+****
+
+### **Selection**
+
+* $\huge Y=\beta_0+\beta_3X_3+\beta_6X_6+\beta_8X_8+\epsilon$
+
+****
+
+### **(b)** Assume that the budget (US 200) is limited. Based on your analysis results in (a), please compare following strategies: (S1)(X1, X3, X7) = (100, 50, 50) and (S2) (X1, X2, X3, X7, X8, X10, X12) = (20, 25, 50, 10, 10, 50, 35), and explain which strategy you will choose and also compute the mean of returns of these strategies ?
+
+#### (S1)
+```{r echo=FALSE}
+summary(lm_s1)
+```
+#### (S2)
+```{r echo=FALSE}
+summary(lm_s2)
+```
+#### F-value
+```{r echo=FALSE}
+data.frame('s1'=anova_s1$F_value, 's2'=anova_s2$F_value)
+```
+#### Prediction
+```{r echo=FALSE}
+data.frame('s1'=y_s1, 's2'=y_s2)
+rm(list = ls())
+```
+
+****
+
+## **(3)** Please analyze this data and make an analysis report.
+Contemporary China is on the leading edge of a sexual revolution, with tremendous regional and generational differences that provide unparalleled natural experiments for analysis of the antecedents and outcomes of sexual behaviour. The Chinese Health and Family Life Study, conducted 1999-2000 as a collaborative research project of the Universities of Chicago, Beijing, and North Carolina, provides a baseline from which to anticipate and track future changes. Specifically, this study produces a baseline set of results on sexual behaviour and disease patterns, using a nationally representative probability sample. The Chinese Health and Family Life Survey sampled 60 villages and urban neighbourhoods chosen in such a way as to represent the full geographical and socioeconomic range of contemporary China excluding Hong Kong and Tibet. Eighty-three individuals were chosen at random for each location from official registers of adults aged between 20 and 64 years to target a sample of 5000 individuals in total. Here, we restrict our attention to women with current male partners for whom no information was missing, leading to a sample of 1534 women with the following variables.
+
+****
+
+### **Data set**
+```{r echo=FALSE}
+load("final3.RData")
+CHFLS
+```
+
+### **Numerical data**
+```{r echo=FALSE}
+chfls.f
+```
+
+****
+
+### **R_income**
+```{r echo=FALSE}
+summary(lm_rincome)
+```
+#### **Forward**
+##### F-value
+```{r echo=FALSE}
+f_valuef1in
+```
+```{r echo=FALSE}
+chflsf_in
+```
+##### Code
+```{r eval=FALSE, include=TRUE}
+chfls_in = chfls.f%>%select(4,1,2,3,5,6,7,8,9,10)
+chflsf_in = data.frame(Y = chfls_in$R_income)
+n_var = 1:9
+f_valuef1in = 0
+for(i in 1:9){
+  f_com = c()
+  for(j in n_var){
+    chfls_dm = as.data.frame(cbind(chflsf_in, chfls_in[,j+1]))
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var[-which.max(f_com)]
+  f_valuef2 = max(f_com)
+  print(c(f_valuef1in,f_valuef2))
+  if(f_valuef1in<=f_valuef2){
+    chflsf_in = as.data.frame(cbind(chflsf_in, chfls_in[,which.max(f_com)+1]))
+    colnames(chflsf_in)[length(chflsf_in)] = colnames(chfls.f)[which.max(f_com)+1]
+    f_valuef1in = f_valuef2
+  }else{
+    break
+  }
+}
+```
+#### **Backward**
+
+##### F-value
+```{r echo=FALSE}
+f_valueb1in
+```
+```{r echo=FALSE}
+chflsb_in
+```
+##### Code
+```{r eval=FALSE, include=TRUE}
+#Backward
+chflsb_in = chfls_in
+colnames(chflsb_in)[1] = "Y"
+n_var = 9
+f_valueb1in = 0
+for(i in 1:8){
+  f_com = c()
+  for(j in 1:n_var){
+    chfls_dm = chflsb_in[,-(j+1)]
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var-1
+  f_valueb2 = min(f_com)
+  print(c(f_valueb1in,f_valueb2))
+  if(f_valueb1in<=f_valueb2){
+    chflsb_in = chflsb_in[,-which.min(f_com)]
+    f_valueb1in = f_valueb2
+  }else{
+    break
+  }
+}
+```
+
+****
+
+### **Selection**
+
+* $\huge R_{income}=\beta_0+\beta_1A_{income}+\epsilon$
+
+****
+### **A_income**
+```{r echo=FALSE}
+summary(lm_aincome)
+```
+#### **Forward**
+##### F-value
+```{r echo=FALSE}
+f_valuef1ain
+```
+```{r echo=FALSE}
+chflsf_ain
+```
+##### Code
+```{r eval=FALSE, include=TRUE}
+chfls_ain = chfls.f%>%select(10,1,2,3,4,5,6,7,8,9,10)
+chflsf_ain = data.frame(Y = chfls_ain$A_income)
+n_var = 1:9
+f_valuef1ain = 0
+for(i in 1:9){
+  f_com = c()
+  for(j in n_var){
+    chfls_dm = as.data.frame(cbind(chflsf_ain, chfls_ain[,j+1]))
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var[-which.max(f_com)]
+  f_valuef2 = max(f_com)
+  print(c(f_valuef1ain,f_valuef2))
+  if(f_valuef1ain<=f_valuef2){
+    chflsf_ain = as.data.frame(cbind(chflsf_ain, chfls_ain[,which.max(f_com)+1]))
+    colnames(chflsf_ain)[length(chflsf_ain)] = colnames(chfls.f)[which.max(f_com)+1]
+    f_valuef1ain = f_valuef2
+  }else{
+    break
+  }
+}
+```
+#### **Backward**
+
+##### F-value
+```{r echo=FALSE}
+f_valueb1ain
+```
+```{r echo=FALSE}
+chflsb_ain
+```
+##### Code
+```{r eval=FALSE, include=TRUE}
+chflsb_ain = chfls_ain
+colnames(chflsb_ain)[1] = "Y"
+n_var = 9
+f_valueb1ain = 0
+for(i in 1:8){
+  f_com = c()
+  for(j in 1:n_var){
+    chfls_dm = chflsb_ain[,-(j+1)]
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var-1
+  f_valueb2 = min(f_com)
+  print(c(f_valueb1ain,f_valueb2))
+  if(f_valueb1ain<=f_valueb2){
+    chflsb_ain = chflsb_ain[,-which.min(f_com)]
+    f_valueb1ain = f_valueb2
+  }else{
+    break
+  }
+}
+```
+
+****
+
+### **Selection**
+
+* $\huge A_{income}=\beta_0+\beta_1R_{health}+\epsilon$
+
+****
+### **R_happy**
+```{r echo=FALSE}
+summary(lm_happy)
+```
+#### **Forward**
+##### F-value
+```{r echo=FALSE}
+f_valuef1h
+```
+```{r echo=FALSE}
+chfls_dmf
+```
+##### Code
+```{r eval=FALSE, include=TRUE}
+chflsY = chfls.f%>%select(7,1,2,3,4,5,6,8,9,10)
+chfls_dmf = data.frame(Y = chflsY$R_happy)
+n_var = 1:9
+f_valuef1h = 0
+for(i in 1:9){
+  f_com = c()
+  for(j in n_var){
+    chfls_dm = as.data.frame(cbind(chfls_dmf, chflsY[,j+1]))
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var[-which.max(f_com)]
+  f_valuef2 = max(f_com)
+  print(c(f_valuef1h,f_valuef2))
+  if(f_valuef1h<=f_valuef2){
+    chfls_dmf = as.data.frame(cbind(chfls_dmf, chflsY[,which.max(f_com)+1]))
+    colnames(chfls_dmf)[length(chfls_dmf)] = colnames(chfls.f)[which.max(f_com)+1]
+    f_valuef1h = f_valuef2
+  }else{
+    break
+  }
+}
+```
+#### **Backward**
+
+##### F-value
+```{r echo=FALSE}
+f_valueb1h
+```
+```{r echo=FALSE}
+chflsb
+```
+##### Code
+```{r eval=FALSE, include=TRUE}
+chflsb = chflsY
+n_var = 9
+f_valueb1h = 0
+for(i in 1:9){
+  f_com = c()
+  for(j in 1:n_var){
+    chfls_dm = chflsb[,-(j+1)]
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var-1
+  f_valueb2 = min(f_com)
+  print(c(f_valueb1h,f_valueb2))
+  if(f_valueb1h<=f_valueb2){
+    chflsb = chflsb[,-which.min(f_com)]
+    f_valueb1h = f_valueb2
+  }else{
+    break
+  }
+}
+rm(list = ls())
+```
+
+****
+
+### **Selection**
+
+* $\huge R_{happy}=\beta_0+\beta_1R_{height}+\epsilon$
+
+****

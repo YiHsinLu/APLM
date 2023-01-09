@@ -1,0 +1,244 @@
+```{r}
+library(HSAUR3)
+library(plotly)
+data("CHFLS", package = "HSAUR3")
+anova_info = function(dm,lm1=list(),k=1){
+  n = nrow(dm)
+  p = ncol(dm)
+  colnames(dm)[k] = "Y"
+  if(length(lm1)==0){
+    lm1 = lm(Y~., data = dm)
+  }
+  SSR = sum((fitted(lm1)-mean(dm$Y))^2)
+  SSE = sum((dm$Y-fitted(lm1))^2)
+  df_r = p-1
+  df_e = n-p
+  MSR = SSR/df_r
+  MSE = SSE/df_e
+  F_value = MSR/MSE
+  anova_fin = as.data.frame(matrix(data = c(SSR, df_r, MSR,F_value,
+                                            SSE, df_e, MSE, "",
+                                            SSR+SSE, df_r+df_e, "", ""), ncol = 4, nrow = 3, byrow = T))
+  colnames(anova_fin) = c("Sum of Square", "deree of freedom", "Mean Square",   "F-test")
+  rownames(anova_fin) = c("Regession", "Error", "Total")
+  F_test = qf(0.95, df_r, df_e)
+  return(list(n=n, p=p, SSR=SSR, df_r=df_r, MSR=MSR, SSE=SSE, df_e=df_e, MSE=MSE, F_value=F_value, F_test=F_test, anova_table = anova_fin))
+}
+```
+
+```{r}
+CHFLS = na.omit(CHFLS)
+chfls1 = CHFLS[, c(3,4,5,7,9,10)]
+chfls.f = na.omit(CHFLS)
+```
+
+```{r}
+edu = levels(chfls1$R_edu)
+happy = levels(chfls1$R_happy)
+heal = levels(chfls1$R_health)
+reg = levels(chfls.f$R_region)
+```
+
+```{r}
+for(i in 1:length(reg)){
+  chfls.f$R_region = gsub(reg[i], i, as.factor(chfls.f$R_region))
+}
+chfls.f$R_region = gsub('4east', 5, as.factor(chfls.f$R_region))
+
+for(i in 1:length(edu)){
+  chfls.f$R_edu = gsub(edu[i], i, chfls.f$R_edu)
+}
+for(i in 1:length(edu)){
+  chfls.f$A_edu = gsub(edu[i], i, chfls.f$A_edu)
+}
+for(i in 1:length(happy)){
+  chfls.f$R_happy = gsub(happy[i], i, chfls.f$R_happy)
+}
+for(i in 1:length(heal)){
+  chfls.f$R_health = gsub(heal[i], i, chfls.f$R_health)
+}
+
+for(i in 1:length(edu)){
+  chfls.f$R_edu = as.numeric(chfls.f$R_edu)
+}
+for(i in 1:length(edu)){
+  chfls.f$A_edu = as.numeric(chfls.f$A_edu)
+}
+for(i in 1:length(happy)){
+  chfls.f$R_happy = as.numeric(chfls.f$R_happy)
+}
+for(i in 1:length(heal)){
+  chfls.f$R_health = as.numeric(chfls.f$R_health)
+}
+```
+
+
+```{r}
+lm_happy = lm(R_happy~., data = chfls.f)
+summary(lm_happy)
+```
+
+
+```{r}
+lm_happy = lm(R_income~., data = chfls.f)
+summary(lm_happy)
+```
+
+```{r}
+lm_happy = lm(A_income~., data = chfls.f)
+summary(lm_happy)
+```
+
+```{r}
+chflsY = chfls.f%>%select(7,1,2,3,4,5,6,8,9,10)
+chfls_dmf = data.frame(Y = chflsY$R_happy)
+n_var = 1:9
+f_valuef1 = 0
+for(i in 1:9){
+  f_com = c()
+  for(j in n_var){
+    chfls_dm = as.data.frame(cbind(chfls_dmf, chflsY[,j+1]))
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var[-which.max(f_com)]
+  f_valuef2 = max(f_com)
+  print(c(f_valuef1,f_valuef2))
+  if(f_valuef1<=f_valuef2){
+    chfls_dmf = as.data.frame(cbind(chfls_dmf, chflsY[,which.max(f_com)+1]))
+    colnames(chfls_dmf)[length(chfls_dmf)] = colnames(chfls.f)[which.max(f_com)+1]
+    f_valuef1 = f_valuef2
+  }else{
+    break
+  }
+}
+```
+
+```{r}
+#Backward
+chflsb = chflsY
+n_var = 9
+f_valueb1 = 0
+for(i in 1:9){
+  f_com = c()
+  for(j in 1:n_var){
+    chfls_dm = chflsb[,-(j+1)]
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var-1
+  f_valueb2 = min(f_com)
+  print(c(f_valueb1,f_valueb2))
+  if(f_valueb1<=f_valueb2){
+    chflsb = chflsb[,-which.min(f_com)]
+    f_valueb1 = f_valueb2
+  }else{
+    break
+  }
+}
+```
+
+```{r}
+chfls_in = chfls.f%>%select(4,1,2,3,5,6,7,8,9,10)
+chflsf_in = data.frame(Y = chfls_in$R_income)
+n_var = 1:9
+f_valuef1 = 0
+for(i in 1:9){
+  f_com = c()
+  for(j in n_var){
+    chfls_dm = as.data.frame(cbind(chflsf_in, chfls_in[,j+1]))
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var[-which.max(f_com)]
+  f_valuef2 = max(f_com)
+  print(c(f_valuef1,f_valuef2))
+  if(f_valuef1<=f_valuef2){
+    chflsf_in = as.data.frame(cbind(chflsf_in, chfls_in[,which.max(f_com)+1]))
+    colnames(chflsf_in)[length(chflsf_in)] = colnames(chfls.f)[which.max(f_com)+1]
+    f_valuef1 = f_valuef2
+  }else{
+    break
+  }
+}
+```
+
+```{r}
+#Backward
+chflsb_in = chfls_in
+colnames(chflsb_in)[1] = "Y"
+n_var = 9
+f_valueb1 = 0
+for(i in 1:8){
+  f_com = c()
+  for(j in 1:n_var){
+    chfls_dm = chflsb_in[,-(j+1)]
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var-1
+  f_valueb2 = min(f_com)
+  print(c(f_valueb1,f_valueb2))
+  if(f_valueb1<=f_valueb2){
+    chflsb_in = chflsb_in[,-which.min(f_com)]
+    f_valueb1 = f_valueb2
+  }else{
+    break
+  }
+}
+```
+
+
+```{r}
+chfls_ain = chfls.f%>%select(10,1,2,3,4,5,6,7,8,9,10)
+chflsf_ain = data.frame(Y = chfls_ain$A_income)
+n_var = 1:9
+f_valuef1 = 0
+for(i in 1:9){
+  f_com = c()
+  for(j in n_var){
+    chfls_dm = as.data.frame(cbind(chflsf_ain, chfls_ain[,j+1]))
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var[-which.max(f_com)]
+  f_valuef2 = max(f_com)
+  print(c(f_valuef1,f_valuef2))
+  if(f_valuef1<=f_valuef2){
+    chflsf_ain = as.data.frame(cbind(chflsf_ain, chfls_ain[,which.max(f_com)+1]))
+    colnames(chflsf_ain)[length(chflsf_ain)] = colnames(chfls.f)[which.max(f_com)+1]
+    f_valuef1 = f_valuef2
+  }else{
+    break
+  }
+}
+```
+
+```{r}
+#Backward
+chflsb_ain = chfls_ain
+colnames(chflsb_ain)[1] = "Y"
+n_var = 9
+f_valueb1 = 0
+for(i in 1:8){
+  f_com = c()
+  for(j in 1:n_var){
+    chfls_dm = chflsb_ain[,-(j+1)]
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var-1
+  f_valueb2 = min(f_com)
+  print(c(f_valueb1,f_valueb2))
+  if(f_valueb1<=f_valueb2){
+    chflsb_ain = chflsb_ain[,-which.min(f_com)]
+    f_valueb1 = f_valueb2
+  }else{
+    break
+  }
+}
+```
+
+```{r}
+plot_ly(chfls.f, x = ~R_health, y = ~R_income, color = ~R_happy)
+```

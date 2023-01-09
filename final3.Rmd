@@ -1,5 +1,6 @@
 ```{r}
 library(HSAUR3)
+library(plotly)
 data("CHFLS", package = "HSAUR3")
 anova_info = function(dm,lm1=list(),k=1){
   n = nrow(dm)
@@ -79,6 +80,16 @@ summary(lm_happy)
 
 
 ```{r}
+lm_happy = lm(R_income~., data = chfls.f)
+summary(lm_happy)
+```
+
+```{r}
+lm_happy = lm(A_income~., data = chfls.f)
+summary(lm_happy)
+```
+
+```{r}
 chflsY = chfls.f%>%select(7,1,2,3,4,5,6,8,9,10)
 chfls_dmf = data.frame(Y = chflsY$R_happy)
 n_var = 1:9
@@ -128,7 +139,7 @@ for(i in 1:9){
 ```
 
 ```{r}
-chfls_in = chfls.f%>%select(4,1,2,3,,5,6,7,8,9,10)
+chfls_in = chfls.f%>%select(4,1,2,3,5,6,7,8,9,10)
 chflsf_in = data.frame(Y = chfls_in$R_income)
 n_var = 1:9
 f_valuef1 = 0
@@ -175,4 +186,59 @@ for(i in 1:8){
     break
   }
 }
+```
+
+
+```{r}
+chfls_ain = chfls.f%>%select(10,1,2,3,4,5,6,7,8,9,10)
+chflsf_ain = data.frame(Y = chfls_ain$A_income)
+n_var = 1:9
+f_valuef1 = 0
+for(i in 1:9){
+  f_com = c()
+  for(j in n_var){
+    chfls_dm = as.data.frame(cbind(chflsf_ain, chfls_ain[,j+1]))
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var[-which.max(f_com)]
+  f_valuef2 = max(f_com)
+  print(c(f_valuef1,f_valuef2))
+  if(f_valuef1<=f_valuef2){
+    chflsf_ain = as.data.frame(cbind(chflsf_ain, chfls_ain[,which.max(f_com)+1]))
+    colnames(chflsf_ain)[length(chflsf_ain)] = colnames(chfls.f)[which.max(f_com)+1]
+    f_valuef1 = f_valuef2
+  }else{
+    break
+  }
+}
+```
+
+```{r}
+#Backward
+chflsb_ain = chfls_ain
+colnames(chflsb_ain)[1] = "Y"
+n_var = 9
+f_valueb1 = 0
+for(i in 1:8){
+  f_com = c()
+  for(j in 1:n_var){
+    chfls_dm = chflsb_ain[,-(j+1)]
+    anova_infoi = anova_info(chfls_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var-1
+  f_valueb2 = min(f_com)
+  print(c(f_valueb1,f_valueb2))
+  if(f_valueb1<=f_valueb2){
+    chflsb_ain = chflsb_ain[,-which.min(f_com)]
+    f_valueb1 = f_valueb2
+  }else{
+    break
+  }
+}
+```
+
+```{r}
+plot_ly(chfls.f, x = ~R_health, y = ~R_income, color = ~R_happy)
 ```

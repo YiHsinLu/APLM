@@ -1,0 +1,201 @@
+```{r}
+library(HSAUR3)
+library(ggplot2)
+library(ggpubr)
+library(tidyverse)
+library(broom)
+library(AICcmodavg)
+finProd = read.csv("FinalRMdata2023.csv", row.names = 1)
+```
+
+```{r}
+powerset = function(s){
+  len = length(s)
+  l = vector(mode="list",length=2^len) ; l[[1]]=numeric()
+  counter = 1L
+  for(x in 1L:length(s)){
+      for(subset in 1L:counter){
+          counter=counter+1L
+          l[[counter]] = c(l[[subset]],s[x])
+      }
+  }
+  return(l)
+}
+
+InfoCrit = function(dm){
+  powerset = function(s){
+    len = length(s)
+    l = vector(mode="list",length=2^len) ; l[[1]]=numeric()
+    counter = 1L
+    for(x in 1L:length(s)){
+        for(subset in 1L:counter){
+            counter=counter+1L
+            l[[counter]] = c(l[[subset]],s[x])
+        }
+    }
+    return(l)
+  }
+  n = nrow(dm)
+  k = ncol(dm)-1
+  pow = powerset(1:k)
+  AIC = c()
+  BIC = c()
+  for(s in pow){
+    if(length(s)==0){
+      print(s)
+    }else{
+      p = length(s)+1
+      lm1 = lm(Y~., data = dm)
+      sse = sum((fitted(lm1) - dm$Y)^2)
+      aic = n*log(sse)-n*log(n)+2*p
+      bic = n*log(sse)-n*log(n)+p*log(n)
+      AIC = rbind(AIC,aic)
+      BIC = rbind(BIC,bic)
+    }
+  }
+  return(list(powerset = pow, AIC = AIC, BIC = BIC))
+}
+```
+
+```{r}
+fin_IC = InfoCrit(finProd)
+```
+
+```{r}
+which.min(fin_IC$AIC)
+which.min(fin_IC$BIC)
+fin_IC$powerset[2]
+```
+
+```{r}
+lm_fin = lm(Y~., data = finProd)
+summary(lm_fin)
+```
+
+```{r}
+anova_info = function(dm,lm1=list(),k=1){
+  n = nrow(dm)
+  p = ncol(dm)
+  colnames(dm)[k] = "Y"
+  if(length(lm1)==0){
+    lm1 = lm(Y~., data = dm)
+  }
+  SSR = sum((fitted(lm1)-mean(dm$Y))^2)
+  SSE = sum((dm$Y-fitted(lm1))^2)
+  df_r = p-1
+  df_e = n-p
+  MSR = SSR/df_r
+  MSE = SSE/df_e
+  F_value = MSR/MSE
+  anova_fin = as.data.frame(matrix(data = c(SSR, df_r, MSR,F_value,
+                                            SSE, df_e, MSE, "",
+                                            SSR+SSE, df_r+df_e, "", ""), ncol = 4, nrow = 3, byrow = T))
+  colnames(anova_fin) = c("Sum of Square", "deree of freedom", "Mean Square",   "F-test")
+  rownames(anova_fin) = c("Regession", "Error", "Total")
+  F_test = qf(0.95, df_r, df_e)
+  return(list(n=n, p=p, SSR=SSR, df_r=df_r, MSR=MSR, SSE=SSE, df_e=df_e, MSE=MSE, F_value=F_value, F_test=F_test, anova_table = anova_fin))
+}
+
+```
+
+```{r}
+n = nrow(finProd)
+p = ncol(finProd)
+SSR = sum((fitted(lm_fin)-mean(finProd$Y))^2)
+SSE = sum((finProd$Y-fitted(lm_fin))^2)
+df_r = p-1
+df_e = n-p
+MSR = SSR/df_r
+MSE = SSE/df_e
+F_value = MSR/MSE
+anova_fin = as.data.frame(matrix(data = c(SSR, df_r, MSR,F_value,
+                                          SSE, df_e, MSE, "",
+                                          SSR+SSE, df_r+df_e, "", ""), ncol = 4, nrow = 3, byrow = T))
+colnames(anova_fin) = c("Sum of Square", "deree of freedom", "Mean Square", "F-test")
+rownames(anova_fin) = c("Regession", "Error", "Total")
+F_test = qf(0.95, df_r, df_e)
+```
+
+```{r}
+mean(lm_fin$residuals)
+var(lm_fin$residuals)
+qqnorm(lm_fin$residuals)
+qqline(lm_fin$residuals)
+```
+
+```{r}
+#Forward Stepwise Selection
+f_com = c()
+for(i in 1:20){
+  fin_dm = as.data.frame(cbind(finProd$Y, finProd[,i+1]))
+  anova_info.i = anova_info(fin_dm)
+  f_com = rbind(f_com, anova_info.i$F_value)
+}
+which.max(f_com)
+max(f_com)
+```
+
+```{r}
+fin_dmf = data.frame(Y = finProd$Y)
+n_var = 1:20
+f_valuef1 = 0
+for(i in 1:20){
+  f_com = c()
+  for(j in n_var){
+    fin_dm = as.data.frame(cbind(fin_dmf, finProd[,j+1]))
+    anova_infoi = anova_info(fin_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var[-which.max(f_com)]
+  f_valuef2 = max(f_com)
+  print(c(f_valuef1,f_valuef2))
+  if(f_valuef1<=f_valuef2){
+    fin_dmf = as.data.frame(cbind(fin_dmf, finProd[,which.max(f_com)+1]))
+    colnames(fin_dmf)[length(fin_dmf)] = colnames(finProd)[which.max(f_com)+1]
+    f_valuef1 = f_valuef2
+  }else{
+    break
+  }
+}
+```
+
+```{r}
+#Backward
+fin_dmb = finProd
+n_var = 20
+f_valueb1 = 0
+for(i in 1:20){
+  f_com = c()
+  for(j in 1:n_var){
+    fin_dm = fin_dmb[,-(j+1)]
+    anova_infoi = anova_info(fin_dm)
+    f_com = rbind(f_com, anova_infoi$F_value)
+  }
+  n_var = n_var-1
+  f_valueb2 = min(f_com)
+  print(c(f_valueb1,f_valueb2))
+  if(f_valueb1<=f_valueb2){
+    fin_dmb = fin_dmb[,-which.min(f_com)]
+    f_valueb1 = f_valueb2
+  }else{
+    break
+  }
+}
+```
+
+```{r}
+finProd_s1 = finProd[, c(1,2,4,8)]
+finProd_s2 = finProd[, c(1,2,3,4,8,9,11,13)]
+lm_s1 = lm(Y~X1+X3+X7, data = finProd)
+lm_s2 = lm(Y~X1+X2+X3+X7+X8+X10+X12, data = finProd)
+```
+
+```{r}
+anova_s1 = anova_info(finProd_s1, lm_s1)
+anova_s2 = anova_info(finProd_s2, lm_s2)
+```
+
+```{r}
+y_s1 = (c(1,100,50,50)%*%t(t(lm_s1$coefficients)))[1,1]
+y_s2 = (c(1,20,25,50,10,10,50,35)%*%t(t(lm_s2$coefficients)))[1,1]
+```
