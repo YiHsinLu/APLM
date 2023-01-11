@@ -6,3 +6,4 @@ The master degree class--applied statistical linear model
 * [Homework3](https://yihsinlu.github.io/aplm.io/assignment1014.html)
 * [Homework4](https://yihsinlu.github.io/aplm.io/1204.html)
 * [Final2023](https://yihsinlu.github.io/aplm.io/FinalExam/Final.html)
+* [Lesson11:Influential Points](https://yihsinlu.github.io/aplm.io/Chapter_report_ch11/ch_11.html)
