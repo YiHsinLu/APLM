@@ -80,20 +80,20 @@ summary(lm_happy)
 
 
 ```{r}
-lm_happy = lm(R_income~., data = chfls.f)
-summary(lm_happy)
+lm_rincome = lm(R_income~., data = chfls.f)
+summary(lm_rincome)
 ```
 
 ```{r}
-lm_happy = lm(A_income~., data = chfls.f)
-summary(lm_happy)
+lm_aincome = lm(A_income~., data = chfls.f)
+summary(lm_aincome)
 ```
 
 ```{r}
 chflsY = chfls.f%>%select(7,1,2,3,4,5,6,8,9,10)
 chfls_dmf = data.frame(Y = chflsY$R_happy)
 n_var = 1:9
-f_valuef1 = 0
+f_valuef1h = 0
 for(i in 1:9){
   f_com = c()
   for(j in n_var){
@@ -103,11 +103,11 @@ for(i in 1:9){
   }
   n_var = n_var[-which.max(f_com)]
   f_valuef2 = max(f_com)
-  print(c(f_valuef1,f_valuef2))
-  if(f_valuef1<=f_valuef2){
+  print(c(f_valuef1h,f_valuef2))
+  if(f_valuef1h<=f_valuef2){
     chfls_dmf = as.data.frame(cbind(chfls_dmf, chflsY[,which.max(f_com)+1]))
     colnames(chfls_dmf)[length(chfls_dmf)] = colnames(chfls.f)[which.max(f_com)+1]
-    f_valuef1 = f_valuef2
+    f_valuef1h = f_valuef2
   }else{
     break
   }
@@ -118,7 +118,7 @@ for(i in 1:9){
 #Backward
 chflsb = chflsY
 n_var = 9
-f_valueb1 = 0
+f_valueb1h = 0
 for(i in 1:9){
   f_com = c()
   for(j in 1:n_var){
@@ -128,10 +128,10 @@ for(i in 1:9){
   }
   n_var = n_var-1
   f_valueb2 = min(f_com)
-  print(c(f_valueb1,f_valueb2))
-  if(f_valueb1<=f_valueb2){
+  print(c(f_valueb1h,f_valueb2))
+  if(f_valueb1h<=f_valueb2){
     chflsb = chflsb[,-which.min(f_com)]
-    f_valueb1 = f_valueb2
+    f_valueb1h = f_valueb2
   }else{
     break
   }
@@ -142,7 +142,7 @@ for(i in 1:9){
 chfls_in = chfls.f%>%select(4,1,2,3,5,6,7,8,9,10)
 chflsf_in = data.frame(Y = chfls_in$R_income)
 n_var = 1:9
-f_valuef1 = 0
+f_valuef1in = 0
 for(i in 1:9){
   f_com = c()
   for(j in n_var){
@@ -152,11 +152,11 @@ for(i in 1:9){
   }
   n_var = n_var[-which.max(f_com)]
   f_valuef2 = max(f_com)
-  print(c(f_valuef1,f_valuef2))
-  if(f_valuef1<=f_valuef2){
+  print(c(f_valuef1in,f_valuef2))
+  if(f_valuef1in<=f_valuef2){
     chflsf_in = as.data.frame(cbind(chflsf_in, chfls_in[,which.max(f_com)+1]))
     colnames(chflsf_in)[length(chflsf_in)] = colnames(chfls.f)[which.max(f_com)+1]
-    f_valuef1 = f_valuef2
+    f_valuef1in = f_valuef2
   }else{
     break
   }
@@ -168,7 +168,7 @@ for(i in 1:9){
 chflsb_in = chfls_in
 colnames(chflsb_in)[1] = "Y"
 n_var = 9
-f_valueb1 = 0
+f_valueb1in = 0
 for(i in 1:8){
   f_com = c()
   for(j in 1:n_var){
@@ -178,10 +178,10 @@ for(i in 1:8){
   }
   n_var = n_var-1
   f_valueb2 = min(f_com)
-  print(c(f_valueb1,f_valueb2))
-  if(f_valueb1<=f_valueb2){
+  print(c(f_valueb1in,f_valueb2))
+  if(f_valueb1in<=f_valueb2){
     chflsb_in = chflsb_in[,-which.min(f_com)]
-    f_valueb1 = f_valueb2
+    f_valueb1in = f_valueb2
   }else{
     break
   }
@@ -193,7 +193,7 @@ for(i in 1:8){
 chfls_ain = chfls.f%>%select(10,1,2,3,4,5,6,7,8,9,10)
 chflsf_ain = data.frame(Y = chfls_ain$A_income)
 n_var = 1:9
-f_valuef1 = 0
+f_valuef1ain = 0
 for(i in 1:9){
   f_com = c()
   for(j in n_var){
@@ -203,11 +203,11 @@ for(i in 1:9){
   }
   n_var = n_var[-which.max(f_com)]
   f_valuef2 = max(f_com)
-  print(c(f_valuef1,f_valuef2))
-  if(f_valuef1<=f_valuef2){
+  print(c(f_valuef1ain,f_valuef2))
+  if(f_valuef1ain<=f_valuef2){
     chflsf_ain = as.data.frame(cbind(chflsf_ain, chfls_ain[,which.max(f_com)+1]))
     colnames(chflsf_ain)[length(chflsf_ain)] = colnames(chfls.f)[which.max(f_com)+1]
-    f_valuef1 = f_valuef2
+    f_valuef1ain = f_valuef2
   }else{
     break
   }
@@ -219,7 +219,7 @@ for(i in 1:9){
 chflsb_ain = chfls_ain
 colnames(chflsb_ain)[1] = "Y"
 n_var = 9
-f_valueb1 = 0
+f_valueb1ain = 0
 for(i in 1:8){
   f_com = c()
   for(j in 1:n_var){
@@ -229,10 +229,10 @@ for(i in 1:8){
   }
   n_var = n_var-1
   f_valueb2 = min(f_com)
-  print(c(f_valueb1,f_valueb2))
-  if(f_valueb1<=f_valueb2){
+  print(c(f_valueb1ain,f_valueb2))
+  if(f_valueb1ain<=f_valueb2){
     chflsb_ain = chflsb_ain[,-which.min(f_com)]
-    f_valueb1 = f_valueb2
+    f_valueb1ain = f_valueb2
   }else{
     break
   }

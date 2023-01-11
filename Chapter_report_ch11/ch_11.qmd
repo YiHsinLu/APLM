@@ -1,0 +1,830 @@
+---
+title: "**Lesson 11: Influential Points**"
+format:
+  revealjs:
+    incremental: true
+    slide-number: true
+    chalkboard: 
+      buttons: false
+    preview-links: auto
+    theme: simple
+author: "*Yi-Hsin Lu*, *Che-Wei Liu*, *Jun-Hao Lin*, **"
+date: "Jan. 12th, 2023"
+---
+
+## Outline
+
+* 11.1 Distinction Between Outliers & High Leverage Observations
+* 11.2 Using Leverages to Help Identify Extreme x Values
+* 11.3 Identifying Outliers (Unusual y Values)
+* 11.4 Deleted Residuals
+* 11.5 Identifying Influential Data Points
+* 11.6 Further Examples
+* 11.7 A Strategy for Dealing with Problematic Data Points
+* 11.8 Summary
+
+::: footer
+[PSU stat501](https://online.stat.psu.edu/stat501/)
+:::
+
+
+# 11.1 Distinction Between Outliers & High Leverage Observations
+
+* An outlier is a data point whose response y does not follow the general
+trend of the rest of the data.
+* A data point has high leverage if it has "extreme" predictor x values. 
+
+::: footer
+[11.1 Distinction Between Outliers & High Leverage Observations](https://online.stat.psu.edu/stat501/lesson/11/11.1)
+:::
+
+## Example 1
+```{r}
+influence2 <- read.delim("dataset/influence2.txt")
+influence2_1 <- influence2[1:20,2:3]
+plot(influence2_1,col=4)
+points(x=4,y=40,col=2,pch=4)
+lm_influence2_1 <- lm(y~x,data = influence2_1)
+abline(lm_influence2_1,col=4)
+lm_influence2 <- lm(y~x,data = influence2)
+abline(lm_influence2,col=2)
+```
+
+## Example 1
+red data point is excluded
+```{r}
+lm_influence2_1
+```
+$$
+{y}=1.732+5.117{x}
+$$
+```{r}
+anova(lm_influence2_1)
+```
+## Example 1
+red data point is included
+```{r}
+lm_influence2
+```
+$$
+{y}=2.958+5.037{x}
+$$
+```{r}
+anova(lm_influence2)
+```
+
+
+## Example 2
+```{r}
+influence3 <- read.delim("dataset/influence3.txt")
+influence3_1 <- influence3[1:20,2:3]
+plot(influence3_1,col=4,xlim=c(0,14),ylim=c(0,70))
+points(x=14,y=68,col=2,pch=4)
+lm_influence3_1 <- lm(y~x,data = influence3_1)
+abline(lm_influence3_1,col=4)
+lm_influence3 <- lm(y~x,data = influence3)
+abline(lm_influence3,col=2)
+```
+
+## Example 2
+red data point is excluded
+```{r}
+lm_influence3_1
+```
+$$
+{y}=1.732+5.117{x}
+$$
+```{r}
+anova(lm_influence3_1)
+```
+
+## Example 2
+red data point is included
+```{r}
+lm_influence3
+```
+$$
+{y}=2.468+4.927{x}
+$$
+```{r}
+anova(lm_influence3)
+```
+## Example 3
+```{r}
+influence4 <- read.delim("dataset/influence4.txt")
+influence4_1 <- influence4[1:20,2:3]
+plot(influence4_1,col=4,xlim=c(0,13))
+points(x=13,y=15,col=2,pch=4)
+lm_influence4_1 <- lm(y~x,data = influence4_1)
+abline(lm_influence4_1,col=4)
+lm_influence4 <- lm(y~x,data = influence4)
+abline(lm_influence4,col=2)
+```
+
+## Example 3
+red data point is excluded
+```{r}
+lm_influence4_1
+```
+$$
+{y}=1.732+5.117{x}
+$$
+```{r}
+anova(lm_influence4_1)
+```
+
+## Example 3
+red data point is included
+```{r}
+lm_influence4
+```
+$$
+{y}=8.505+3.320{x}
+$$
+```{r}
+anova(lm_influence4)
+```
+
+# 11.2 Using Leverages to Help Identify Extreme x Values
+    
+In this section, we learn about "leverages" and how they can help us identify extreme $x$ values. We need to be able to identify extreme $x$ values, because in certain situations they may highly influence the estimated regression function.
+
+::: footer
+[11.2 Using Leverages to Help Identify Extreme x Values](https://online.stat.psu.edu/stat501/lesson/11/11.2)
+:::
+
+
+## Definition and properties of leverages
+
+The regression model can be written succinctly as:
+$$
+\small Y=X \beta+\epsilon
+$$
+Therefore, the predicted responses can be represented in matrix notation as:
+$$
+\small \hat{y}=Xb
+$$
+
+then you can see that the predicted responses can be alternatively written as:
+$$
+\small \hat{y}=X\left(X^{\prime} X\right)^{-1} X^{\prime} y
+$$
+
+## Definition and properties of leverages
+
+That is, the predicted responses can be obtained by pre-multiplying the $n$ $\times 1$ column vector, $\boldsymbol{y}$, containing the observed responses by the $n \times n$ matrix $\mathrm{H}$ :
+$$
+\small H=X\left(X^{\prime} X\right)^{-1} X^{\prime}
+$$
+That is:
+$$
+\small \hat{y}=H y
+$$
+
+## Definition and properties of leverages
+
+we can see that the predicted response for observation $i$ can be written as a linear combination of the $n$ observed responses $y_1, y_2, \ldots y_n$ :
+$$
+\small \hat{y}_i=h_{i 1} y_1+h_{i 2} y_2+\ldots+h_{i i} y_i+\ldots+h_{i n} y_n \quad \text { for } i=1, \ldots, n
+$$
+
+## Definition and properties of leverages
+
+where the weights $h_{i 1}, h_{i 2}, \ldots h_{i i} \ldots h_{i n}$ : depend only on the predictor values. That is:
+$$
+\small \begin{gathered}
+\hat{y}_1=h_{11} y_1+h_{12} y_2+\cdots+h_{1 n} y_n \\
+\hat{y}_2=h_{21} y_1+h_{22} y_2+\cdots+h_{2 n} y_n \\
+\vdots \\
+\hat{y}_n=h_{n 1} y_1+h_{n 2} y_2+\cdots+h_{n n} y_n
+\end{gathered}
+$$
+Because the predicted response can be written as:
+$$
+\small \hat{y}_i=h_{i 1} y_1+h_{i 2} y_2+\ldots+h_{i i} y_i+\ldots+h_{i n} y_n \quad \text { for } i=1, \ldots, n
+$$
+
+## Definition and properties of leverages
+
+the leverage, $h_{i i}$, quantifies the influence that the observed response $y_i$ has on its predicted value $\hat{y}_i$. That is if $h_{i i}$ is small, then the observed response $y_i$ plays only a small role in the value of the predicted response $\hat{y}_i$. On the other hand, if $h_{i i}$ is large, then the observed response $y_i$ plays a large role in the value of the predicted response $\hat{y}_i$. It's for this reason that the $h_{i i}$ is called the "leverages."
+
+## Here are some important properties of the leverages:
+-   The leverage $h_{i i}$ is a measure of the distance between the $x$ value for the $i^{t h}$ data point and the mean of the $x$ values for all $n$ data points.
+-   The leverage $h_{i i}$ is a number between 0 and 1 , inclusive.
+-   The sum of the $h_{i i}$ equals $p$, $p$ is the number of parameters.
+
+## Identifying data points whose x values are extreme
+A common rule is to flag any observation whose leverage value, $h_{i i}$, is more than 3 times larger than the mean leverage value:
+$$
+\small \bar{h}=\frac{\sum_{i=1}^n h_{i i}}{n}=\frac{p}{n}
+$$
+This is the rule that we uses to determine when to flag an observation. That is, if:
+$$
+\small h_{i i}>3\left(\frac{p}{n}\right)
+$$
+then we flags the observations as "Unusual X".
+
+## Example
+use 11.1 Example 3 data
+```{r}
+data_x <- influence4[,2]
+x <- matrix(1,21,1)
+x <- cbind(x,data_x)
+y <- influence3[,3]
+H <- x%*%(solve(t(x)%*%x))%*%t(x)
+red_point <- H[21,21]
+red_point
+n <- 21
+p <- 2
+3*(p/n) < red_point
+rm(list=ls())
+```
+Now, the leverage of the data point 0.311 is greater than 0.286. Therefore, the data point should be flagged as having high leverage.
+
+
+# 11.3 Identifying Outliers (Unusual y Values)
+
+::: footer
+[11.3 Identifying Outliers (Unusual y Values)](https://online.stat.psu.edu/stat501/lesson/11/11.3)
+:::
+
+## Introduction
+
+* Residuals $$ e_i=y_i-\hat{y_i} $$
+
+* Studentized residuals (or internally studentized residuals) $$r_i=\frac {e_i}{s(e_i)}= \frac {e_i}{\sqrt{(MSE(1-h_{ii}))}}$$
+
+## Residuals table
+
+```{r echo=FALSE }
+#| echo: false
+#| warning: false
+#| fig-width: 12
+#| fig-height: 12
+#| fig-dpi: 100
+x<-c(1,2,3,4)
+y<- c(2,5,6,9)
+fits<-c(2.2,4.4,6.6,8.8)
+resi <- c(-0.2,0.6,-0.6,0.2)
+
+
+dat<- as.data.frame(cbind(x,y))
+dat<-cbind(dat,fits)
+dat<-cbind(dat,resi)
+knitr::kable(dat)
+```
+
+The major problem with ordinary residuals is that their magnitude depends on the units of measurement, thereby making it difficult to use the residuals as a way of detecting unusual y values.
+
+## Studentized residuals (or internally studentized residuals)
+
+Studentized residuals (or internally studentized residuals) are defined for each observation, i = 1, ..., n as an ordinary residual divided by an estimate of its standard deviation: $$r_i=\frac {e_i}{s(e_i)}= \frac {e_i}{\sqrt{(MSE(1-h_{ii}))}}$$
+
+## Studentized residuals table
+
+```{r echo=FALSE}
+#| column: page
+hi <- c(0.7,0.3,0.3,0.7)
+sres <- c(-0.57735,1.13389,-1.13389,0.57735)
+dat<- as.data.frame(cbind(x,y))
+dat<-cbind(dat,fits)
+dat<-cbind(dat,resi)
+dat <- cbind(dat,hi)
+dat <- cbind(dat,sres)
+knitr::kable(dat)
+```
+
+$$r_1=\frac {-0.2}{\sqrt{0.4(1-0.7)}}=-0.57735$$
+
+## Studentized residuals table
+
+The point about internally studentized residuals is that they quantify how large the residuals are in standard deviation units, and therefore can be easily used to identify outliers:
+
+* An observation with an internally studentized residual that is larger than 3 (in absolute value) is generally deemed an outlier.
+
+* We can flag any observation with an internally studentized residual that is larger than 2 (in absolute value).
+
+## Example
+
+```{r echo=FALSE}
+
+data <-  read.table("dataset/influence2.txt")
+
+colnames(data) <- data[1,]
+
+data <-data[-1,-1]
+
+
+plot(data)
+
+
+points(x=4,                       
+       y=40, 
+       pch=16,                  # 點的圖形
+       col="red")
+
+
+```
+
+```{r echo=FALSE}
+
+
+dats<-as.data.frame(rbind(c(21,40,23.11,16.89,3.68),c("obs","y",'fit','resid','std')))
+
+colnames(dats) <- dats[2,]
+dats <- dats[-2,]
+
+knitr::kable(dats)
+
+
+```
+
+## reg1(include outlier)
+
+```{r echo=FALSE}
+#| fig-width: 8
+#| fig-height: 6
+data$x<- as.numeric(data$x)
+data$y<- as.numeric(data$y)
+
+#plot(data2)
+regre1 <- lm(y~.,data = data)
+summary(regre1)
+```
+
+$$\hat{y}=2.93+5.037x$$
+
+## reg2(remove outlier)
+
+```{r echo=FALSE}
+
+data2 <- data[-21,]
+
+regre2 <-lm(y~x,data = data2)
+summary(regre2)
+
+```
+
+$$\hat{y}=1.3+5.117x$$
+
+# 11.4 Deleted Residuals
+
+::: footer
+[11.4 Deleted Residuals](https://online.stat.psu.edu/stat501/lesson/11/11.4)
+:::
+
+## (Unstandardized) deleted residuals
+
+* $y_i$denote the observed response for the $i^{th}$ observation
+* $\hat{y_i}$ denote the estimated $i^{th}$ observation
+
+$$d_i=y_i-\hat{y_{(i)}}$$ A data point having a large deleted residual suggests that the data point is influential.
+
+## Example
+
+```{r echo=FALSE}
+f<-function(x){return(0.6+1.55*x)}
+
+#f(c(1,2,3))
+
+#c(10,3.82-0.83*10)
+
+mydat<-cbind.data.frame(c(1,2,3),f(c(1,2,3)))
+mydat<-rbind(mydat,c(10,3.82-0.83*10))
+colnames(mydat) <- c("x","y")
+
+knitr::kable(plot(mydat))
+
+points(x=10,                       
+       y=3.82-0.83*10, 
+       pch=16,                  
+       col="red")
+
+```
+
+* $\small \hat{y_{(4)}}=0.6+1.55(10)=16.1$
+* $\small d_4=2.1-16.1=-14$
+
+## Studentized deleted residuals (or externally studentized residuals)
+
+$$t_i=\frac {d_i}{s(d_i)}=\frac {e_i}{\sqrt{MSE_{(i)}(1-h_{ii})}}$$
+
+$$r_i=\frac {e_i}{s(e_i)}= \frac {e_i}{\sqrt{(MSE(1-h_{ii}))}}$$
+
+## Difference
+
+1.  Internally studentized residuals use the mean square error for the model based on all observations.
+2.  Externally studentized residuals use the mean square error based on the estimated model with the observation deleted.
+
+### Another forumla for Externally studentized residuals
+
+using only the results for the model fit to all the observations $$t_i=r_i(\frac {n-p-1}{n-p-r_i^2})^{1/2}$$
+
+$r_i$ is the $i^{th}$ internally studentized residual. n = the number of observations. p = the number of regression parameters including the intercept.
+
+1.In general, externally studentized residuals are going to be more effective for detecting outlying Y observations than internally studentized residuals.
+
+2.If an observation has an externally studentized residual that is larger than 3 (in absolute value) we can call it an outlier.
+
+## Example
+
+```{r echo=FALSE}
+resi <- c(-1.59,0.24,1.77,-0.42)
+tres <- c(-1.7431,0.1217,1.6361,-19.7990)
+mydats<- cbind(mydat,resi)
+mydats<- cbind(mydats,tres)
+
+knitr::kable(tail(mydats))
+```
+
+The studentized deleted residual ("TRES") for the red data point is $t_4=-19.7990$.
+
+Now we just have to decide if this is large enough to deem the data point influential.
+
+The t distribution has 4 - 1 - 2 = 1 degree of freedom. Looking at a plot of the t distribution with 1 degree of freedom
+
+## t-distribution for degree of freedom 1
+
+```{r echo=FALSE}
+
+hist(rt(100000,10000),xlim = c(-5,5),main =' t')
+
+
+```
+
+we see that almost all of the t values for this distribution fall between -4 and 4.
+
+Based on studentized deleted residuals, the red data point is deemed influential.
+
+## Revisited
+
+```{r echo=FALSE}
+tres<-function(data,i){
+  reg<-lm(y~x ,data = data)
+  reg$residuals[i]*((sum(length(data[,1]))-sum(length(data[1,]))-1)/(sum(length(data[,1]))-sum(length(data[1,]))-reg$residuals[i]))^(1/2)
+}
+
+
+plot(tres(data,1:21))
+points(x=22,                       
+       y=49.37518, 
+       pch=16,                  
+       col="red")
+```
+
+The value of influential point is 49.37518
+
+## t-distribution for degree of freedom 18
+
+```{r echo=FALSE}
+
+hist(rt(1000000,18),xlim = c(-5,5),main =' t')
+
+rm(list = ls())
+```
+
+Based on studentized deleted residuals, the red data point in this example is deemed influential.
+
+
+# 11.5 Identifying Influential Data Points
+
+::: footer
+[11.5 Identifying Influential Data Points](https://online.stat.psu.edu/stat501/lesson/11/11.5)
+:::
+
+* Difference in Fits (DFFITS)
+* Cook's distance
+
+## Difference in Fits (DFFITS)
+\
+
+* $DFFITS_i=\frac{\hat{y}_i-\hat{y}_{i(i)}}{\sqrt{MSE_{(i)}h_{ii}}}$\
+\
+* With/Without $\;\large i_{th}\;$ obs.
+
+
+## Cook's Distance
+\
+
+* $D_i=\cfrac{(y_i-\hat{y}_i)^2}{p\times MSE}\left(\cfrac{h_{ii}}{(1-h_{ii})^2}\right)$
+
+
+## Example 11-2{.smaller .scrollable}
+::: panel-tabset
+
+```{r include=FALSE}
+library(highcharter)
+library(kableExtra)
+library(car)
+library(dplyr)
+library(plotly)
+load("rdata/11_5.RData")
+```
+
+### Data
+```{r echo=FALSE}
+kable(infl2)
+```
+
+### DFFITS
+
+$$
+|DFFITS_i|>2\sqrt{\frac{p+1}{n-p-1}}=0.82
+$$
+
+****
+
+```{r}
+kbl(infl2_df)%>%
+  kable_paper(full_width = F) %>%
+  column_spec(3,color = "white",
+              background = spec_color(infl2_df$DFFITS, end = 0.8))
+```
+
+### Cookd
+
+$$
+D_i>0.5\mbox{: may be influential point.}
+$$
+$$
+D_i>1\mbox{: more like influential point.}
+$$
+
+****
+
+```{r}
+kbl(infl2_d)%>%
+  kable_paper(full_width = F) %>%
+  column_spec(3,color = "white",
+              background = spec_color(infl2_d$Di, end = 0.5))
+```
+
+### Plot
+
+```{r}
+hchart(infl2_infl, "scatter", hcaes(x = x, y = y, group = group))
+
+```
+
+### Plot ($\hat{\beta}$)
+```{r}
+plot_infl2
+```
+
+:::
+
+## Example 11-3{.smaller .scrollable}
+::: panel-tabset
+### Data
+```{r echo=FALSE}
+kable(infl3)
+```
+
+### DFFITS
+
+$$
+|DFFITS_i|>2\sqrt{\frac{p+1}{n-p-1}}=0.82
+$$
+
+****
+
+```{r}
+kbl(infl3_d)%>%
+  kable_paper(full_width = F) %>%
+  column_spec(3,color = "white",
+              background = spec_color(infl3_d$DFFITS, end = 0.75))
+```
+
+### Cookd
+
+$$
+D_i>0.5\mbox{: may be influential point.}
+$$
+$$
+D_i>1\mbox{: more like influential point.}
+$$
+
+****
+
+```{r}
+kbl(infl3_df)%>%
+  kable_paper(full_width = F) %>%
+  column_spec(3,color = "white",
+              background = spec_color(infl3_df$Di, end = 0.8))
+```
+
+### Plot
+
+```{r}
+hchart(infl3_infl, "scatter", hcaes(x = x, y = y, group = group))
+
+```
+
+### Plot ($\hat{\beta}$)
+```{r}
+plot_infl3
+```
+
+:::
+
+## Example 11-4{.smaller .scrollable}
+::: panel-tabset
+
+### Data
+```{r echo=FALSE}
+kable(infl4)
+```
+
+### DFFITS
+
+$$
+|DFFITS_i|>2\sqrt{\frac{p+1}{n-p-1}}=0.82
+$$
+
+****
+
+```{r}
+kbl(infl4_df)%>%
+  kable_paper(full_width = F) %>%
+  column_spec(3,color = "white",
+              background = spec_color(infl4_df$DFFITS, end = 0.8))
+```
+
+### Cookd
+
+$$
+D_i>0.5\mbox{: may be influential point.}
+$$
+$$
+D_i>1\mbox{: more like influential point.}
+$$
+
+****
+
+```{r}
+kbl(infl4_d)%>%
+  kable_paper(full_width = F) %>%
+  column_spec(3,color = "white",
+              background = spec_color(infl4_d$Di, end = 0.8))
+```
+
+### Plot
+
+```{r}
+hchart(infl4_infl, "scatter", hcaes(x = x, y = y, group = group))
+
+```
+
+### Plot ($\hat{\beta}$)
+```{r}
+plot_infl4
+rm(list = ls())
+```
+
+:::
+
+
+
+# 11.6 Further Examples
+
+::: footer
+[11.6 Further Examples](https://online.stat.psu.edu/stat501/lesson/11/11.6)
+:::
+
+## Example 11.6.1{.smaller .scrollable}
+::: panel-tabset
+
+```{r include=FALSE}
+load("rdata/11_6.RData")
+```
+
+### Data
+```{r echo=FALSE}
+kable(height_f)
+```
+
+### DFFITS
+
+$$
+|DFFITS_i|>2\sqrt{\frac{p+1}{n-p-1}}=0.63
+$$
+
+****
+
+```{r}
+kbl(fh_df)%>%
+  kable_paper(full_width = F) %>%
+  column_spec(3,color = "white",
+              background = spec_color(fh_df$DFFITS, end = 0.96))
+```
+
+### Cookd
+
+$$
+D_i>0.5\mbox{: may be influential point.}
+$$
+$$
+D_i>1\mbox{: more like influential point.}
+$$
+
+****
+
+```{r}
+kbl(fh_d)%>%
+  kable_paper(full_width = F) %>%
+  column_spec(3,color = "white",
+              background = spec_color(fh_d$Di, end = 0.94))
+```
+
+### Plot
+
+```{r}
+hchart(height_f_infl, "scatter", hcaes(x = height, y = foot, group = group))
+
+```
+
+### Plot ($\hat{\beta}$)
+```{r}
+plot_height_f
+```
+
+:::
+
+## Example 11.6.2{.smaller .scrollable}
+::: panel-tabset
+
+```{r include=FALSE}
+load("rdata/11_6_2.RData")
+```
+
+### Data
+```{r echo=FALSE}
+kable(Hospital)
+```
+
+### DFFITS/Cookd
+
+$$
+|DFFITS_i|>2\sqrt{\frac{p+1}{n-p-1}}=0.33
+$$
+
+****
+
+$$
+D_i>0.5\mbox{: may be influential point.}
+$$
+$$
+D_i>1\mbox{: more like influential point.}
+$$
+
+****
+
+```{r}
+kbl(hos_d)%>%
+  kable_paper(full_width = F) %>%
+  column_spec(3,color = "white",background = spec_color(hos_d$DFFITS, end = 0.94))%>%
+  column_spec(4,color = "white",background = spec_color(hos_d$Di, end = 0.94))
+```
+
+### Plot
+
+```{r}
+plot_Hospital
+```
+
+### Plot ($\hat{\beta}$)
+```{r}
+plot_Hospital_est
+```
+
+:::
+
+# 11.7 A Strategy for Dealing with Problematic Data Points
+
+* Data Errors
+
+* +/- Variables?
+
+* Deleting Data?
+
+
+::: footer
+[11.7 A Strategy for Dealing with Problematic Data Points](https://online.stat.psu.edu/stat501/lesson/11/11.7)
+:::
+
+# 11.8 Summary
+
+* leverages
+* residuals
+* studentized residuals (or internally studentized residuals)
+* (unstandardized) deleted residuals (or PRESS prediction errors)
+* studentized deleted residuals (or externally studentized residuals)
+* difference in fits (DFFITS)
+* Cook's distance measure
+
+
+::: footer
+[11.8 Summary](https://online.stat.psu.edu/stat501/lesson/11/11.8)
+:::
+
+# Thank You for Your Attention!

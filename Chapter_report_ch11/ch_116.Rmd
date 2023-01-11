@@ -1,0 +1,14 @@
+# 11.6.1 Height Foot
+```{r}
+height_f = read.table("dataset/height_foot.txt", header = T)
+infl2_infl = cbind(infl2, group = rep("data points", 21))
+infl2_infl[21,3] = "influential point"
+```
+
+```{r}
+library(highcharter)
+library(kableExtra)
+library(car)
+
+hchart(infl2_infl, "scatter", hcaes(x = x, y = y, group = group))
+```

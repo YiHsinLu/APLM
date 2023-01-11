@@ -155,6 +155,7 @@ for(i in 1:20){
     f_valuef1 = f_valuef2
   }else{
     break
+    f_value.f = f_valuef1
   }
 }
 ```
@@ -179,6 +180,7 @@ for(i in 1:20){
     f_valueb1 = f_valueb2
   }else{
     break
+    f_value.b = f_valueb1
   }
 }
 ```
