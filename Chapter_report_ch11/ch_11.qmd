@@ -8,7 +8,7 @@ format:
       buttons: false
     preview-links: auto
     theme: simple
-author: "*Yi-Hsin Lu*, *Che-Wei Liu*, *Jun-Hao Lin*, **"
+author: "*Yi-Hsin Lu*, *Che-Wei Liu*, *Jun-Hao Lin*, *Zi-Xuan Huang*"
 date: "Jan. 12th, 2023"
 ---
 
