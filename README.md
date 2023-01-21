@@ -1,5 +1,6 @@
-# APLM
-The master degree class--applied statistical linear model
+# 111-1 APLM
+The master degree class: Applied Statistical Linear Model.
+
 
 * [Homework1](https://yihsinlu.github.io/aplm.io/HM1006.html)
 * [Homework2](https://yihsinlu.github.io/aplm.io/1013Practice.html)
